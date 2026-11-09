@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台大日常選食｜NTU Lunch Archive</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Iansui&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-oat: #F7F6F2;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #EFECE6;
+      --text-main: #1C1917;
+      --text-muted: #78716C;
+      --border-hairline: #E6E4DD;
+      --sage: #3F6212;
+      --sage-light: #ECFCCB;
+      --amber: #D97706;
+      --font-body: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      --font-display: 'Noto Serif TC', serif;
+    }
+
+    body.theme-editorial {
+      --font-body: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      --font-display: 'Noto Serif TC', serif;
+    }
+    body.theme-modern {
+      --font-body: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      --font-display: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+    }
+    body.theme-literary {
+      --font-body: 'DM Sans', 'Iansui', sans-serif;
+      --font-display: 'Iansui', serif;
+    }
+
+    body {
+      background-color: var(--bg-oat);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif-display {
+      font-family: var(--font-display);
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Minimalist Range Slider in Sage Green */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      background: #E5E2DC;
+      height: 5px;
+      border-radius: 999px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      margin-top: -5.5px;
+      background-color: #3F6212;
+      height: 16px;
+      width: 16px;
+      border-radius: 999px;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 1px 2px rgba(28, 25, 23, 0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+      background-color: #365314;
+    }
+
+    /* Subtle Scrollbar */
+    .bento-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .bento-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .bento-scroll::-webkit-scrollbar-thumb {
+      background: #D6D3CD;
+      border-radius: 999px;
+    }
+    .bento-scroll::-webkit-scrollbar-thumb:hover {
+      background: #A8A29E;
+    }
+
+    /* Smooth Drawer Transition */
+    .drawer-backdrop {
+      transition: opacity 0.25s ease;
+    }
+    .drawer-panel {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="theme-editorial min-h-screen pb-12 selection:bg-[#3F6212]/15 selection:text-[#3F6212]">
+
+  <!-- Main Container -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-4">
+
+    <!-- Top Editorial Masthead (Bento Header) -->
+    <header class="bg-white rounded-2xl border border-stone-200/80 px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-9 h-9 rounded-xl bg-[#EFECE6] border border-stone-200/80 flex items-center justify-center text-[#3F6212] font-serif-display font-bold text-lg">
+          食
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#78716C]">NTU LUNCH ARCHIVE</span>
+            <span class="text-stone-300">·</span>
+            <span id="liveClockBadge" class="text-xs font-medium text-[#3F6212] tabular-nums">載入時間中...</span>
+          </div>
+          <h1 class="text-lg sm:text-xl font-serif-display font-semibold text-[#1C1917] tracking-tight">
+            台大日常選食指南
+          </h1>
+        </div>
+      </div>
+
+      <!-- Quick Controls: Transport Toggle + Settings Trigger -->
+      <div class="flex items-center gap-2.5">
+        <!-- Walk / YouBike Pill Switch -->
+        <div class="bg-[#F7F6F2] p-1 rounded-xl border border-stone-200/80 flex items-center text-xs font-medium">
+          <button id="modeWalkBtn" type="button" class="px-3 py-1.5 rounded-lg bg-white text-[#1C1917] border border-stone-200/70 transition">
+            步行
+          </button>
+          <button id="modeBikeBtn" type="button" class="px-3 py-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] transition">
+            YouBike
+          </button>
+        </div>
+
+        <!-- Open Drawer Button -->
+        <button id="openSettingsBtn" type="button" class="px-3.5 py-2 rounded-xl bg-[#F7F6F2] hover:bg-[#EFECE6] text-[#1C1917] border border-stone-200/80 text-xs font-medium transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-[#78716C]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+          </svg>
+          <span>偏好設定</span>
+          <span id="activeFilterDot" class="w-1.5 h-1.5 rounded-full bg-[#3F6212]"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Asymmetric Bento Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+      <!-- Left / Primary Column (7 Cols): Hero Winner Card + Quick Mood Strip -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+
+        <!-- Hero Winner Bento Card -->
+        <section id="heroCard" class="bg-white rounded-2xl border border-stone-200/80 p-6 sm:p-8 flex-1 flex flex-col justify-between transition-colors duration-300">
+          <div>
+            <!-- Top Meta Row: Category + Probability + Operating Status -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-stone-100">
+              <div class="flex items-center gap-2">
+                <span id="resCategory" class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#EFECE6] text-[#1C1917]">
+                  校內自助餐
+                </span>
+                <span id="resOpenBadge" class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#3F6212]/10 text-[#3F6212] tabular-nums">
+                  營業中
+                </span>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-[#78716C] tabular-nums">
+                <span>中籤權重</span>
+                <span id="resProb" class="font-semibold text-[#1C1917] bg-[#F7F6F2] px-2.5 py-0.5 rounded-full border border-stone-200/70">--%</span>
+              </div>
+            </div>
+
+            <!-- Main Restaurant Title (Noto Serif TC 600) -->
+            <div class="mt-6">
+              <p id="resArea" class="text-xs font-medium text-[#78716C] tracking-wide">
+                台大二活 1F · 距出發點 210m
+              </p>
+              <h2 id="resName" class="text-2xl sm:text-4xl font-serif-display font-semibold text-[#1C1917] tracking-tight mt-1.5 leading-snug">
+                品軒樓自助餐
+              </h2>
+            </div>
+
+            <!-- Micro Pill Badges (Health, Price, Travel Time, Protein, Kcal) -->
+            <div id="resPills" class="flex flex-wrap items-center gap-2 mt-5 tabular-nums">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#3F6212]/10 text-[#3F6212]">
+                <span>健康度</span>
+                <strong id="pillHealth" class="font-semibold">8.8</strong>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#D97706]/10 text-[#D97706]">
+                <span>均價</span>
+                <strong id="pillPrice" class="font-semibold">$115</strong>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F7F6F2] text-[#1C1917] border border-stone-200/80">
+                <span id="pillModeLabel">步行</span>
+                <strong id="pillTime" class="font-semibold">3 分鐘</strong>
+                <span id="pillMeters" class="text-[#78716C]">(240m)</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F7F6F2] text-[#1C1917] border border-stone-200/80">
+                <span>蛋白質</span>
+                <strong id="pillProtein" class="font-semibold">35g</strong>
+              </span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#F7F6F2] text-[#78716C] border border-stone-200/80">
+                <span id="pillKcal">550 kcal</span>
+              </span>
+            </div>
+
+            <!-- Editorial Curated Guide -->
+            <div class="mt-6 pt-6 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="bg-[#F7F6F2] p-4 rounded-xl border border-stone-200/60">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[#3F6212] mb-1.5">
+                  推薦點法 · ORDERING
+                </div>
+                <p id="resOrder" class="text-xs sm:text-sm text-[#1C1917] leading-relaxed">
+                  夾取 3 格深綠時蔬、滷雞腿去皮或清蒸魚，搭配板豆腐、蒸蛋與半碗五穀紫米飯。
+                </p>
+              </div>
+              <div class="bg-[#F7F6F2] p-4 rounded-xl border border-stone-200/60">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[#D97706] mb-1.5">
+                  選食筆記 · NOTE
+                </div>
+                <p id="resNote" class="text-xs sm:text-sm text-[#78716C] leading-relaxed">
+                  位於二活 1 樓，計價親民且菜色多樣；夾菜時挑選上層瀝乾油水的青菜，避開裹粉油炸主菜。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Action Bar -->
+          <div class="mt-7 pt-5 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
+            <button id="drawBtn" type="button" class="flex-1 sm:flex-initial px-7 py-3.5 rounded-xl bg-[#3F6212] hover:bg-[#365314] active:scale-[0.99] text-white font-medium text-sm transition flex items-center justify-center gap-2 cursor-pointer">
+              <span id="drawBtnText">隨機抽出今日午餐</span>
+            </button>
+
+            <div class="flex items-center gap-2">
+              <button id="excludeBtn" type="button" class="px-3.5 py-3 rounded-xl bg-[#F7F6F2] hover:bg-[#EFECE6] text-[#78716C] hover:text-[#1C1917] border border-stone-200/80 text-xs font-medium transition">
+                換一間 (暫時排除)
+              </button>
+              <a id="mapLink" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-3 rounded-xl bg-[#F7F6F2] hover:bg-[#EFECE6] text-[#1C1917] border border-stone-200/80 text-xs font-medium transition inline-flex items-center gap-1">
+                <span>Google Maps</span>
+                <span class="text-[#78716C]">↗</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Mood & Category Bento Strip -->
+        <section class="bg-white rounded-2xl border border-stone-200/80 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="text-xs font-semibold text-[#1C1917]">情境快速切換</div>
+            <div class="text-[11px] text-[#78716C] tabular-nums" id="currentWeightSummary">
+              目前偏好：均衡日常 · 預算上限 $200
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5" id="moodPresetBar">
+            <button type="button" data-mood="balanced" class="mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#3F6212] text-white transition">
+              均衡日常
+            </button>
+            <button type="button" data-mood="strict" class="mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F7F6F2] text-[#78716C] hover:text-[#1C1917] border border-stone-200/80 transition">
+              嚴格控卡
+            </button>
+            <button type="button" data-mood="near" class="mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F7F6F2] text-[#78716C] hover:text-[#1C1917] border border-stone-200/80 transition">
+              雨天就近
+            </button>
+            <button type="button" data-mood="budget" class="mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F7F6F2] text-[#78716C] hover:text-[#1C1917] border border-stone-200/80 transition">
+              百元省錢
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right / Secondary Column (5 Cols): Candidate List + Minimalist Radar -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+
+        <!-- Candidate Pool Bento Card -->
+        <section class="bg-white rounded-2xl border border-stone-200/80 p-5 flex-1 flex flex-col">
+          <!-- Category Filter Pills -->
+          <div class="flex items-center justify-between gap-2 pb-3 border-b border-stone-100">
+            <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0" id="catPillBar">
+              <button type="button" data-cat="ALL" class="cat-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-[#1C1917] text-white shrink-0 transition">
+                全部
+              </button>
+              <button type="button" data-cat="校內自助餐" class="cat-pill px-2.5 py-1 rounded-lg text-xs font-medium text-[#78716C] hover:bg-[#F7F6F2] shrink-0 transition">
+                自助餐
+              </button>
+              <button type="button" data-cat="健康餐盒" class="cat-pill px-2.5 py-1 rounded-lg text-xs font-medium text-[#78716C] hover:bg-[#F7F6F2] shrink-0 transition">
+                健康餐盒
+              </button>
+              <button type="button" data-cat="夏威夷拌飯" class="cat-pill px-2.5 py-1 rounded-lg text-xs font-medium text-[#78716C] hover:bg-[#F7F6F2] shrink-0 transition">
+                Poké
+              </button>
+              <button type="button" data-cat="一般餐廳" class="cat-pill px-2.5 py-1 rounded-lg text-xs font-medium text-[#78716C] hover:bg-[#F7F6F2] shrink-0 transition">
+                餐廳改造
+              </button>
+            </div>
+
+            <span id="poolCountText" class="text-[11px] text-[#78716C] tabular-nums shrink-0">
+              -- 間可選
+            </span>
+          </div>
+
+          <!-- Scrollable List -->
+          <div id="candidateList" class="mt-3 space-y-2 max-h-[340px] overflow-y-auto bento-scroll pr-1 flex-1"></div>
+
+          <!-- Reset Excluded Notice -->
+          <div id="excludedBar" class="hidden mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-xs text-[#78716C]">
+            <span>已暫時排除 <strong id="excludedCount" class="tabular-nums text-[#1C1917]">0</strong> 間餐廳</span>
+            <button id="resetExcludeBtn" type="button" class="text-[#3F6212] font-medium hover:underline">
+              全部恢復
+            </button>
+          </div>
+        </section>
+
+        <!-- Minimalist Architectural Radar Bento Card -->
+        <section class="bg-white rounded-2xl border border-stone-200/80 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-xs font-semibold text-[#1C1917]">相對方位散佈圖</h3>
+              <p id="originLabelText" class="text-[11px] text-[#78716C] tabular-nums">
+                中心點：25.014747, 121.538508 (大氣系/鹿鳴堂)
+              </p>
+            </div>
+            <span class="text-[11px] text-[#78716C] bg-[#F7F6F2] px-2 py-0.5 rounded-md border border-stone-200/70 tabular-nums">
+              半徑 1.2 km
+            </span>
+          </div>
+
+          <div class="relative w-full h-44 bg-[#F7F6F2] rounded-xl border border-stone-200/70 overflow-hidden flex items-center justify-center">
+            <svg id="radarSvg" viewBox="0 0 320 170" class="w-full h-full select-none">
+              <!-- Subtle Architectural Rings -->
+              <circle cx="160" cy="85" r="28" fill="none" stroke="#E5E2DC" stroke-width="1" stroke-dasharray="2 2"/>
+              <circle cx="160" cy="85" r="56" fill="none" stroke="#E5E2DC" stroke-width="1"/>
+              <circle cx="160" cy="85" r="80" fill="none" stroke="#D6D3CD" stroke-width="1" stroke-dasharray="2 2"/>
+              <!-- Crosshairs -->
+              <line x1="160" y1="0" x2="160" y2="170" stroke="#E5E2DC" stroke-width="1"/>
+              <line x1="0" y1="85" x2="320" y2="85" stroke="#E5E2DC" stroke-width="1"/>
+              <!-- Cardinal Labels -->
+              <text x="164" y="12" fill="#A8A29E" font-size="8" font-weight="600">N 椰林/辛亥</text>
+              <text x="164" y="164" fill="#A8A29E" font-size="8" font-weight="600">S 二活/公館</text>
+              <text x="8" y="81" fill="#A8A29E" font-size="8" font-weight="600">W 溫州/水源</text>
+              <text x="275" y="81" fill="#A8A29E" font-size="8" font-weight="600">E 長興</text>
+              <!-- Dynamic Dots -->
+              <g id="radarDotsLayer"></g>
+              <!-- Center Origin Point -->
+              <circle cx="160" cy="85" r="4" fill="#D97706" stroke="#FFFFFF" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-Over Settings Drawer (Hidden by Default) -->
+  <div id="settingsModal" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div id="drawerBackdrop" class="drawer-backdrop fixed inset-0 bg-[#1C1917]/30 backdrop-blur-[2px] opacity-0"></div>
+
+    <!-- Drawer Panel -->
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div id="drawerPanel" class="drawer-panel w-screen max-w-md bg-[#F7F6F2] border-l border-stone-200/90 flex flex-col justify-between translate-x-full">
+        
+        <!-- Drawer Header -->
+        <div class="p-6 bg-white border-b border-stone-200/80 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-serif-display font-semibold text-[#1C1917]">偏好與進階設定</h2>
+            <p class="text-xs text-[#78716C] mt-0.5">調整加權滑桿、出發座標、營業時間與字體風格</p>
+          </div>
+          <button id="closeSettingsBtn" type="button" class="w-8 h-8 rounded-lg bg-[#F7F6F2] hover:bg-[#EFECE6] text-[#1C1917] flex items-center justify-center text-sm transition">
+            ✕
+          </button>
+        </div>
+
+        <!-- Drawer Body -->
+        <div class="p-6 space-y-6 overflow-y-auto bento-scroll flex-1">
+
+          <!-- 1. Typography Theme Switcher (From User's Reference Table) -->
+          <div class="bg-white p-4 rounded-2xl border border-stone-200/80 space-y-3">
+            <label class="block text-xs font-semibold text-[#1C1917]">字體美學風格</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-font="theme-editorial" class="font-btn p-2.5 rounded-xl border border-[#3F6212] bg-[#3F6212]/5 text-left transition">
+                <div class="text-xs font-semibold text-[#1C1917]" style="font-family: 'Noto Serif TC', serif;">雜誌高雅風</div>
+                <div class="text-[10px] text-[#78716C] mt-0.5">思源宋體 + Jakarta</div>
+              </button>
+              <button type="button" data-font="theme-modern" class="font-btn p-2.5 rounded-xl border border-stone-200/80 bg-[#F7F6F2] text-left transition">
+                <div class="text-xs font-semibold text-[#1C1917]">現代科技風</div>
+                <div class="text-[10px] text-[#78716C] mt-0.5">思源黑體 + Jakarta</div>
+              </button>
+              <button type="button" data-font="theme-literary" class="font-btn p-2.5 rounded-xl border border-stone-200/80 bg-[#F7F6F2] text-left transition">
+                <div class="text-xs font-semibold text-[#1C1917]" style="font-family: 'Iansui', sans-serif;">日系溫潤風</div>
+                <div class="text-[10px] text-[#78716C] mt-0.5">芫荽體 + DM Sans</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Weight Sliders & Budget -->
+          <div class="bg-white p-4 rounded-2xl border border-stone-200/80 space-y-4">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-semibold text-[#1C1917]">單餐預算上限</label>
+              <span id="budgetVal" class="text-xs font-semibold text-[#D97706] bg-[#D97706]/10 px-2.5 py-0.5 rounded-full tabular-nums">NT$ 200</span>
+            </div>
+            <input id="budgetInput" type="range" min="105" max="260" step="5" value="200" class="w-full">
+
+            <div class="pt-2 border-t border-stone-100 space-y-3.5">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-[#1C1917] font-medium">健康度與高蛋白權重</span>
+                  <span id="wHealthVal" class="text-[#3F6212] font-semibold tabular-nums">8</span>
+                </div>
+                <input id="wHealth" type="range" min="0" max="10" value="8" class="w-full">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-[#1C1917] font-medium">距離就近權重</span>
+                  <span id="wDistVal" class="text-[#3F6212] font-semibold tabular-nums">8</span>
+                </div>
+                <input id="wDist" type="range" min="0" max="10" value="8" class="w-full">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-[#1C1917] font-medium">價格親民權重</span>
+                  <span id="wPriceVal" class="text-[#3F6212] font-semibold tabular-nums">6</span>
+                </div>
+                <input id="wPrice" type="range" min="0" max="10" value="6" class="w-full">
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Reference Point Coordinate -->
+          <div class="bg-white p-4 rounded-2xl border border-stone-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-[#1C1917]">出發基準座標</label>
+              <button id="gpsBtn" type="button" class="text-[11px] font-medium text-[#3F6212] bg-[#3F6212]/10 px-2.5 py-1 rounded-lg hover:bg-[#3F6212]/15 transition">
+                定位目前位置
+              </button>
+            </div>
+
+            <select id="coordPreset" class="w-full rounded-xl border border-stone-200/90 p-2.5 text-xs bg-[#F7F6F2] text-[#1C1917] outline-none">
+              <option value="25.014747,121.538508" selected>預設：25.014747, 121.538508 (大氣系/鹿鳴堂)</option>
+              <option value="25.013150,121.536950">二活 / 品軒樓 / 羅斯福路側門</option>
+              <option value="25.017550,121.540150">活大 / 椰林大道核心</option>
+              <option value="25.021500,121.542500">辛亥路後門 / 社科院側</option>
+              <option value="custom">自訂輸入經緯度...</option>
+            </select>
+
+            <div id="customCoordInputs" class="hidden grid grid-cols-2 gap-2 pt-1 tabular-nums">
+              <div>
+                <span class="block text-[10px] text-[#78716C] mb-0.5">緯度 Latitude</span>
+                <input id="latInput" type="number" step="0.000001" value="25.014747" class="w-full rounded-lg border border-stone-200 px-2.5 py-1.5 text-xs bg-[#F7F6F2]">
+              </div>
+              <div>
+                <span class="block text-[10px] text-[#78716C] mb-0.5">經度 Longitude</span>
+                <input id="lngInput" type="number" step="0.000001" value="121.538508" class="w-full rounded-lg border border-stone-200 px-2.5 py-1.5 text-xs bg-[#F7F6F2]">
+              </div>
+            </div>
+            <p id="gpsStatusText" class="text-[11px] text-[#78716C] hidden"></p>
+          </div>
+
+          <!-- 4. Time & Operating Filter Override -->
+          <div class="bg-white p-4 rounded-2xl border border-stone-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-[#1C1917]">用餐時間與公休過濾</label>
+              <label class="inline-flex items-center gap-1.5 text-xs text-[#78716C] cursor-pointer">
+                <input id="strictHourCheck" type="checkbox" class="accent-[#3F6212] rounded">
+                <span>僅顯示當下時段營業中</span>
+              </label>
+            </div>
+            <select id="daySelect" class="w-full rounded-xl border border-stone-200/90 p-2.5 text-xs bg-[#F7F6F2] text-[#1C1917] outline-none">
+              <option value="auto">自動跟隨現在星期 (預設)</option>
+              <option value="1">指定預覽：星期一</option>
+              <option value="2">指定預覽：星期二</option>
+              <option value="3">指定預覽：星期三</option>
+              <option value="4">指定預覽：星期四</option>
+              <option value="5">指定預覽：星期五</option>
+              <option value="6">指定預覽：星期六</option>
+              <option value="0">指定預覽：星期日</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-5 bg-white border-t border-stone-200/80">
+          <button id="applySettingsBtn" type="button" class="w-full py-3 rounded-xl bg-[#1C1917] hover:bg-stone-800 text-white text-xs font-medium transition">
+            完成並返回選食
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. 19 間台大校內與周邊餐廳資料庫 (含精準座標與營業時段)
+    // =========================================================================
+    const restaurants = [
+      {
+        id: "pinxuan",
+        name: "品軒樓自助餐",
+        category: "校內自助餐",
+        area: "台大二活 1F",
+        lat: 25.01315,
+        lng: 121.53695,
+        price: 115,
+        protein: "35g",
+        kcal: 550,
+        health: 8.8,
+        closedDays: [0], // 週日休
+        hours: [[11, 14], [17, 19.5]],
+        order: "夾取 3 格深綠時蔬、滷雞腿去皮或清蒸魚，搭配板豆腐、蒸蛋與半碗五穀紫米飯。",
+        note: "位於二活 1 樓，距離大氣系/鹿鳴堂極近；夾菜時挑選上層瀝乾油水的青菜，避開裹粉油炸主菜。"
+      },
+      {
+        id: "xiaoxiaofu",
+        name: "小小福・鹿鳴堂熟食攤",
+        category: "校內自助餐",
+        area: "鹿鳴廣場旁",
+        lat: 25.01515,
+        lng: 121.53810,
+        price: 115,
+        protein: "30g",
+        kcal: 540,
+        health: 8.3,
+        closedDays: [0, 6],
+        hours: [[11, 14]],
+        order: "挑選烤雞腿便當（去皮）、滷牛腱或低脂舒肥雞攤位，搭配筍片、木耳與季節蔬菜。",
+        note: "距離基準座標僅約 60 公尺，步行 1 分鐘即達，午休時間緊湊或雨天的最佳選擇。"
+      },
+      {
+        id: "mingji",
+        name: "明記精緻自助餐",
+        category: "校內自助餐",
+        area: "台大活大 B1",
+        lat: 25.01750,
+        lng: 121.54010,
+        price: 110,
+        protein: "34g",
+        kcal: 560,
+        health: 8.6,
+        closedDays: [0, 6],
+        hours: [[11, 14], [17, 19.5]],
+        order: "主菜選滷雞腿去皮或烤鯖魚，副菜選毛豆、滷豆干、滷蛋與兩樣青菜，白飯減半。",
+        note: "活大餐廳老字號自助餐，菜色選擇豐富且計價實惠，適合自由調配高蛋白比例。"
+      },
+      {
+        id: "nanyi",
+        name: "男一舍自助餐",
+        category: "校內自助餐",
+        area: "長興街男一舍 B1",
+        lat: 25.01630,
+        lng: 121.54530,
+        price: 105,
+        protein: "35g",
+        kcal: 580,
+        health: 8.5,
+        closedDays: [],
+        hours: [[11, 14], [17, 19.5]],
+        order: "選擇非油炸瘦肉或蒸魚、滷蛋、板豆腐與三樣季節時蔬，澱粉控制在半碗內。",
+        note: "校內百元高 CP 值代表，騎乘 YouBike 約 3 分鐘可達，週末亦正常供應。"
+      },
+      {
+        id: "proteinbox_ntu",
+        name: "蛋白盒子・台大學餐店",
+        category: "健康餐盒",
+        area: "台大活大 1F",
+        lat: 25.01755,
+        lng: 121.54015,
+        price: 135,
+        protein: "38g",
+        kcal: 520,
+        health: 9.6,
+        closedDays: [0],
+        hours: [[11, 19.5]],
+        order: "選擇舒肥雞胸、滷牛腱或烤鯖魚主餐，搭配內附紫米五穀飯與水煮季節蔬菜。",
+        note: "營養標示最透明的低油專門店；想拉高飽足感可直接單點加購一份雞胸肉或滷蛋。"
+      },
+      {
+        id: "doki_poke",
+        name: "Doki Poke 夏威夷蒸鮮飯",
+        category: "夏威夷拌飯",
+        area: "台大二活穿堂",
+        lat: 25.01310,
+        lng: 121.53690,
+        price: 165,
+        protein: "36g",
+        kcal: 510,
+        health: 9.3,
+        closedDays: [],
+        hours: [[11, 20]],
+        order: "基底選半糙米半生菜；蛋白質選舒肥雞胸、鮮蝦或章魚；配菜選毛豆仁、花椰菜、玉米筍與水煮蛋。",
+        note: "位於二活穿堂，主打溫熱蒸鮮熟食；醬汁建議選和風柚子醬或油醋，避開美乃滋。"
+      },
+      {
+        id: "miss_energy",
+        name: "Miss Energy 能量小姐",
+        category: "健康餐盒",
+        area: "羅斯福路四段52巷",
+        lat: 25.01460,
+        lng: 121.53420,
+        price: 130,
+        protein: "35g",
+        kcal: 540,
+        health: 9.5,
+        closedDays: [0, 6],
+        hours: [[11, 19.5]],
+        order: "水煮嫩雞胸、韓式菇菇雞或鹽烤鯖魚便當；可請店家將部分紫米飯換成蔬菜或地瓜。",
+        note: "全系列採用紫米飯搭配 3 種以上原型蔬菜與半顆滷蛋，從二活過馬路即達。"
+      },
+      {
+        id: "yu_poke",
+        name: "YU POKÉ 夏威夷生魚飯",
+        category: "夏威夷拌飯",
+        area: "羅斯福路四段24巷",
+        lat: 25.01510,
+        lng: 121.53380,
+        price: 170,
+        protein: "38g",
+        kcal: 530,
+        health: 9.3,
+        closedDays: [],
+        hours: [[11.5, 20.5]],
+        order: "基底選半紫米半生菜；蛋白質選鮭魚搭雞胸或鮪魚；配菜選毛豆、海帶絲、秋葵、板豆腐。",
+        note: "下午時段不休息（11:30–20:30），即使實驗或會議超過午後兩點也能隨時用餐。"
+      },
+      {
+        id: "mimicun",
+        name: "米米村 韓式拌飯專門店",
+        category: "一般餐廳",
+        area: "水源市場旁",
+        lat: 25.01390,
+        lng: 121.53560,
+        price: 160,
+        protein: "32g",
+        kcal: 590,
+        health: 7.8,
+        closedDays: [1],
+        hours: [[11.5, 14.5], [17, 20.5]],
+        order: "優先點嫩豆腐煲（搭配瘦肉或海鮮）；若點韓式拌飯建議將辣醬減半。",
+        note: "豆腐與湯品能提供極佳飽足感與雙重蛋白，減少辣醬可降低精製糖與鈉攝取。"
+      },
+      {
+        id: "chicken_rice",
+        name: "CHICKEN RICE ONLY",
+        category: "一般餐廳",
+        area: "溫州街74巷",
+        lat: 25.01880,
+        lng: 121.53360,
+        price: 150,
+        protein: "36g",
+        kcal: 620,
+        health: 7.5,
+        closedDays: [],
+        hours: [[11.5, 14], [17, 20]],
+        order: "海南雞去皮食用，雞油飯吃一半至三分之二，加點燙青菜或單點雞肉。",
+        note: "溫州街質感海南雞飯小店，雞肉鮮嫩高蛋白，僅需留意雞皮與雞油飯份量。"
+      },
+      {
+        id: "jjs_poke",
+        name: "JJ's POKE & CAFE 3号店",
+        category: "夏威夷拌飯",
+        area: "羅斯福路三段284巷",
+        lat: 25.01730,
+        lng: 121.53230,
+        price: 185,
+        protein: "37g",
+        kcal: 520,
+        health: 9.1,
+        closedDays: [],
+        hours: [[11, 20.5]],
+        order: "自選碗搭配雙倍舒肥雞或生魚丁，醬料選擇清爽柑橘或和風醬。",
+        note: "近新生南路側門與誠品，內用空間明亮舒適，全天候營業不休息。"
+      },
+      {
+        id: "proteinbox_tech",
+        name: "蛋白盒子・科技大樓店",
+        category: "健康餐盒",
+        area: "和平東路二段",
+        lat: 25.02420,
+        lng: 121.54350,
+        price: 140,
+        protein: "40g",
+        kcal: 530,
+        health: 9.6,
+        closedDays: [],
+        hours: [[11, 19.5]],
+        order: "低脂雞胸或雙拼主餐（如雞胸雙拼牛腱），直接拉高單餐蛋白質至 40g 以上。",
+        note: "靠近台大辛亥路後門，週日亦正常營業，適合北側系館師生。"
+      },
+      {
+        id: "erzhuan",
+        name: "貳饌 健康餐盒",
+        category: "健康餐盒",
+        area: "金門街",
+        lat: 25.02060,
+        lng: 121.52680,
+        price: 135,
+        protein: "36g",
+        kcal: 530,
+        health: 9.1,
+        closedDays: [6],
+        hours: [[11, 14], [16.5, 19.5]],
+        order: "嫩煎雞胸或低脂牛肉餐盒，搭配高纖五穀紫米飯。",
+        note: "配菜調味具家常風味且不油膩，適合騎乘 YouBike 前往。"
+      },
+      {
+        id: "shida_health",
+        name: "師大健康餐",
+        category: "健康餐盒",
+        area: "師大路",
+        lat: 25.02410,
+        lng: 121.52840,
+        price: 125,
+        protein: "34g",
+        kcal: 540,
+        health: 8.9,
+        closedDays: [0, 6],
+        hours: [[10, 19]],
+        order: "選擇瘦肉類主菜，並請店家減少淋醬。",
+        note: "平日下午不休息（10:00–19:00），價格親民實惠。"
+      },
+      {
+        id: "kaojin_poke",
+        name: "靠近 POKE TEA",
+        category: "夏威夷拌飯",
+        area: "師大路86巷",
+        lat: 25.02250,
+        lng: 121.52920,
+        price: 175,
+        protein: "36g",
+        kcal: 510,
+        health: 9.0,
+        closedDays: [],
+        hours: [[11.5, 20]],
+        order: "高蛋白生魚或舒肥雞碗，搭配店內無糖純茶。",
+        note: "位於溫州街尾端與師大交界，結合清爽生魚飯與現萃無糖茶。"
+      },
+      {
+        id: "hawain_poke",
+        name: "HAWA•IN POKÉ",
+        category: "夏威夷拌飯",
+        area: "師大路49巷",
+        lat: 25.02380,
+        lng: 121.52900,
+        price: 175,
+        protein: "36g",
+        kcal: 520,
+        health: 9.0,
+        closedDays: [],
+        hours: [[11.5, 20.5]],
+        order: "半飯半菜＋雙份瘦肉蛋白質＋原型蔬菜配料。",
+        note: "撒料避開油蔥酥與玉米脆片，改選白芝麻或海苔絲更清爽。"
+      },
+      {
+        id: "haochih",
+        name: "好吃好吃 原塊牛排",
+        category: "一般餐廳",
+        area: "羅斯福路三段316巷",
+        lat: 25.01600,
+        lng: 121.53320,
+        price: 230,
+        protein: "45g",
+        kcal: 650,
+        health: 7.2,
+        closedDays: [1],
+        hours: [[11.5, 14], [17, 21]],
+        order: "選擇低脂原塊瘦肉部位，醬汁只選玫瑰鹽或黑胡椒粒。",
+        note: "想大口吃紅肉補充鐵質時的好去處；避開勾芡醬汁、濃湯與含糖飲料。"
+      },
+      {
+        id: "weiyu_steak",
+        name: "威宇牛排",
+        category: "一般餐廳",
+        area: "汀州路三段",
+        lat: 25.01380,
+        lng: 121.53490,
+        price: 240,
+        protein: "44g",
+        kcal: 660,
+        health: 7.0,
+        closedDays: [],
+        hours: [[11.5, 14.5], [17, 21.5]],
+        order: "點選沙朗或菲力等較瘦部位，請店家「鐵板麵換蛋」並只沾海鹽。",
+        note: "把鐵板麵換成雞蛋能大幅降低精製澱粉與油脂，自助吧濃湯建議跳過。"
+      },
+      {
+        id: "dasheng",
+        name: "大盛豬排專門店",
+        category: "一般餐廳",
+        area: "羅斯福路四段52巷",
+        lat: 25.01470,
+        lng: 121.53410,
+        price: 220,
+        protein: "38g",
+        kcal: 780,
+        health: 4.8,
+        closedDays: [],
+        hours: [[11.5, 14], [17, 20.5]],
+        order: "外層炸衣剝除一半以上，高麗菜絲多吃（少淋胡麻醬），白飯減半。",
+        note: "聚餐想吃日式豬排時的折衷方案，適合安排在高強度運動日。"
+      }
+    ];
+
+    // =========================================================================
+    // 2. 狀態管理與預設座標 (25.014747, 121.538508)
+    // =========================================================================
+    const state = {
+      originLat: 25.014747,
+      originLng: 121.538508,
+      originName: "大氣系/鹿鳴堂",
+      transport: "walk", // 'walk' | 'bike'
+      category: "ALL",
+      mood: "balanced",
+      excludedIds: new Set(),
+      selectedId: "pinxuan",
+      isRolling: false,
+      strictHours: false
+    };
+
+    const dayNames = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+
+    // Calculate distance in meters between two coordinates
+    function getDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // Check if restaurant is open right now
+    function checkOperatingStatus(r, dayIndex, currentFloatHour) {
+      if (r.closedDays.includes(dayIndex)) {
+        return { isDayClosed: true, isNowOpen: false, statusText: "今日公休" };
+      }
+      const inWindow = r.hours.some(([start, end]) => currentFloatHour >= start && currentFloatHour <= end);
+      if (inWindow) {
+        return { isDayClosed: false, isNowOpen: true, statusText: "營業中" };
+      }
+      const hoursLabel = r.hours.map(([s, e]) => {
+        const fmt = h => `${Math.floor(h)}:${h % 1 === 0.5 ? '30' : '00'}`;
+        return `${fmt(s)}-${fmt(e)}`;
+      }).join(', ');
+      return { isDayClosed: false, isNowOpen: false, statusText: `營業時段 ${hoursLabel}` };
+    }
+
+    // Update live clock in header
+    function updateClock() {
+      const now = new Date();
+      const dayStr = dayNames[now.getDay()];
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const floatH = now.getHours() + now.getMinutes() / 60;
+      let period = "日常時段";
+      if (floatH >= 11 && floatH <= 14.5) period = "午間用餐時段";
+      else if (floatH >= 17 && floatH <= 20.5) period = "晚間用餐時段";
+      document.getElementById('liveClockBadge').textContent = `${dayStr} ${hh}:${mm} · ${period}`;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // =========================================================================
+    // 3. 權重與候選池計算
+    // =========================================================================
+    function computePool() {
+      const now = new Date();
+      const daySelectVal = document.getElementById('daySelect').value;
+      const activeDay = daySelectVal === 'auto' ? now.getDay() : parseInt(daySelectVal, 10);
+      const currentFloatHour = now.getHours() + now.getMinutes() / 60;
+
+      const maxBudget = parseInt(document.getElementById('budgetInput').value, 10);
+      const wh = parseInt(document.getElementById('wHealth').value, 10);
+      const wd = parseInt(document.getElementById('wDist').value, 10);
+      const wp = parseInt(document.getElementById('wPrice').value, 10);
+
+      // Sync Drawer UI Labels
+      document.getElementById('budgetVal').textContent = `NT$ ${maxBudget}`;
+      document.getElementById('wHealthVal').textContent = wh;
+      document.getElementById('wDistVal').textContent = wd;
+      document.getElementById('wPriceVal').textContent = wp;
+
+      const moodNames = {
+        balanced: "均衡日常",
+        strict: "嚴格控卡",
+        near: "雨天就近",
+        budget: "百元省錢",
+        custom: "自訂權重"
+      };
+      document.getElementById('currentWeightSummary').textContent =
+        `目前偏好：${moodNames[state.mood] || '自訂'} · 預算上限 $${maxBudget}`;
+
+      const activePool = [];
+      const filteredPool = [];
+
+      restaurants.forEach(r => {
+        const straightM = Math.round(getDistanceMeters(state.originLat, state.originLng, r.lat, r.lng));
+        const routeM = Math.round(straightM * 1.25); // 校園步道與街廓轉折係數
+        const walkMins = Math.max(1, Math.round(routeM / 78));
+        const bikeMins = Math.max(1, Math.round(routeM / 220));
+        const travelMins = state.transport === 'walk' ? walkMins : bikeMins;
+
+        const opStatus = checkOperatingStatus(r, activeDay, currentFloatHour);
+        const overBudget = r.price > maxBudget;
+        const wrongCat = state.category !== 'ALL' && r.category !== state.category;
+        const isExcluded = state.excludedIds.has(r.id);
+        const closedByHour = state.strictHours && !opStatus.isNowOpen;
+
+        const item = {
+          ...r,
+          straightM,
+          routeM,
+          walkMins,
+          bikeMins,
+          travelMins,
+          opStatus,
+          overBudget,
+          wrongCat,
+          isExcluded,
+          closedByHour
+        };
+
+        if (opStatus.isDayClosed || closedByHour || overBudget || wrongCat || isExcluded) {
+          filteredPool.push({ ...item, score: 0, prob: 0 });
+        } else {
+          const normHealth = Math.max(0.12, (r.health - 4.0) / 6.0);
+          const normPrice = Math.max(0.12, (265 - r.price) / 165);
+          const distScale = state.transport === 'walk' ? 1450 : 2500;
+          const normDist = Math.max(0.08, 1 - (routeM / distScale));
+
+          const score = (wh === 0 && wd === 0 && wp === 0)
+            ? 1
+            : Math.pow(normHealth, wh * 0.42) *
+              Math.pow(normDist, wd * 0.48) *
+              Math.pow(normPrice, wp * 0.36) * 100;
+
+          activePool.push({ ...item, score, prob: 0 });
+        }
+      });
+
+      const totalScore = activePool.reduce((acc, x) => acc + x.score, 0);
+      activePool.forEach(x => {
+        x.prob = totalScore > 0 ? (x.score / totalScore) * 100 : 0;
+      });
+
+      activePool.sort((a, b) => b.prob - a.prob);
+      filteredPool.sort((a, b) => a.routeM - b.routeM);
+
+      return { activePool, filteredPool };
+    }
+
+    // =========================================================================
+    // 4. 畫面渲染 (Hero Card + Candidate List + Minimalist Radar)
+    // =========================================================================
+    function renderHero(item) {
+      if (!item) return;
+      state.selectedId = item.id;
+
+      document.getElementById('resCategory').textContent = item.category;
+      const openBadge = document.getElementById('resOpenBadge');
+      openBadge.textContent = item.opStatus.statusText;
+      if (item.opStatus.isDayClosed) {
+        openBadge.className = "px-2.5 py-1 rounded-full text-xs font-medium bg-stone-200 text-[#78716C] tabular-nums";
+      } else if (item.opStatus.isNowOpen) {
+        openBadge.className = "px-2.5 py-1 rounded-full text-xs font-medium bg-[#3F6212]/10 text-[#3F6212] tabular-nums";
+      } else {
+        openBadge.className = "px-2.5 py-1 rounded-full text-xs font-medium bg-[#D97706]/10 text-[#D97706] tabular-nums";
+      }
+
+      document.getElementById('resProb').textContent = `${item.prob ? item.prob.toFixed(1) : '0.0'}%`;
+      document.getElementById('resArea').textContent = `${item.area} · 直線 ${item.straightM}m`;
+      document.getElementById('resName').textContent = item.name;
+
+      document.getElementById('pillHealth').textContent = item.health.toFixed(1);
+      document.getElementById('pillPrice').textContent = `$${item.price}`;
+      document.getElementById('pillModeLabel').textContent = state.transport === 'walk' ? '步行' : 'YouBike';
+      document.getElementById('pillTime').textContent = `${item.travelMins} 分鐘`;
+      document.getElementById('pillMeters').textContent = `(${item.routeM}m)`;
+      document.getElementById('pillProtein').textContent = item.protein;
+      document.getElementById('pillKcal').textContent = `${item.kcal} kcal`;
+
+      document.getElementById('resOrder').textContent = item.order;
+      document.getElementById('resNote').textContent = item.note;
+
+      const q = encodeURIComponent(`台大 ${item.name} ${item.area}`);
+      document.getElementById('mapLink').href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    }
+
+    function renderRadar(activePool, filteredPool) {
+      const layer = document.getElementById('radarDotsLayer');
+      layer.innerHTML = '';
+      const cx = 160;
+      const cy = 85;
+      const maxMeters = 1200;
+      const maxRadiusPx = 76;
+
+      const all = [...filteredPool, ...activePool];
+      all.forEach(r => {
+        const dNorth = (r.lat - state.originLat) * 111111;
+        const dEast = (r.lng - state.originLng) * 100700;
+        const scale = maxRadiusPx / maxMeters;
+
+        let x = cx + dEast * scale;
+        let y = cy - dNorth * scale;
+
+        // Clamp within SVG box
+        x = Math.max(14, Math.min(306, x));
+        y = Math.max(14, Math.min(156, y));
+
+        const isSelected = r.id === state.selectedId;
+        const isActive = r.prob > 0;
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'cursor-pointer');
+        g.onclick = () => {
+          renderHero(r);
+          renderAll(false);
+        };
+
+        if (isSelected) {
+          const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          ring.setAttribute('cx', x);
+          ring.setAttribute('cy', y);
+          ring.setAttribute('r', '9');
+          ring.setAttribute('fill', 'rgba(63, 98, 18, 0.18)');
+          g.appendChild(ring);
+        }
+
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', y);
+        dot.setAttribute('r', isSelected ? '4.5' : (isActive ? '3.5' : '2.2'));
+        dot.setAttribute('fill', isSelected ? '#3F6212' : (isActive ? '#57534E' : '#D6D3CD'));
+        dot.setAttribute('stroke', '#FFFFFF');
+        dot.setAttribute('stroke-width', '1');
+        g.appendChild(dot);
+
+        if (isSelected) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', x + 7);
+          text.setAttribute('y', y + 3);
+          text.setAttribute('fill', '#1C1917');
+          text.setAttribute('font-size', '9');
+          text.setAttribute('font-weight', '600');
+          text.textContent = r.name;
+          g.appendChild(text);
+        }
+
+        layer.appendChild(g);
+      });
+    }
+
+    function renderAll(updateSpotlightIfInvalid = true) {
+      const { activePool, filteredPool } = computePool();
+      document.getElementById('poolCountText').textContent = `${activePool.length} 間符合`;
+
+      const listEl = document.getElementById('candidateList');
+      listEl.innerHTML = '';
+
+      activePool.forEach(r => {
+        const isSelected = r.id === state.selectedId;
+        const row = document.createElement('div');
+        row.className = `p-3 rounded-xl border transition cursor-pointer ${
+          isSelected
+            ? 'bg-[#F7F6F2] border-[#3F6212]'
+            : 'bg-white border-stone-200/70 hover:bg-[#F7F6F2]/70'
+        }`;
+        row.onclick = () => {
+          renderHero(r);
+          renderAll(false);
+        };
+
+        const modeUnit = state.transport === 'walk' ? '步行' : '單車';
+
+        row.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-medium text-xs sm:text-sm text-[#1C1917] truncate">${r.name}</span>
+              <span class="text-[11px] text-[#78716C] shrink-0">${r.category}</span>
+            </div>
+            <span class="text-xs font-semibold text-[#3F6212] tabular-nums shrink-0">${r.prob.toFixed(1)}%</span>
+          </div>
+
+          <div class="w-full bg-[#EFECE6] h-1 rounded-full overflow-hidden my-2">
+            <div class="bg-[#3F6212] h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, r.prob * 2.2)}%"></div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 text-[11px] text-[#78716C] tabular-nums">
+            <span class="px-2 py-0.5 rounded-md bg-[#F7F6F2] border border-stone-200/60 text-[#1C1917]">${modeUnit} ${r.travelMins}分 (${r.routeM}m)</span>
+            <span class="px-2 py-0.5 rounded-md bg-[#F7F6F2] border border-stone-200/60">$${r.price}</span>
+            <span class="px-2 py-0.5 rounded-md bg-[#F7F6F2] border border-stone-200/60">蛋白質 ${r.protein}</span>
+            <span class="ml-auto text-[#3F6212] font-medium">健康 ${r.health.toFixed(1)}</span>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+
+      // Render filtered items subtly at the bottom
+      filteredPool.forEach(r => {
+        if (r.wrongCat) return; // Don't clutter if user explicitly switched category tab
+        let reason = "已排除";
+        if (r.opStatus.isDayClosed) reason = "今日公休";
+        else if (r.closedByHour) reason = "非營業時段";
+        else if (r.overBudget) reason = `超出預算 ($${r.price})`;
+
+        const row = document.createElement('div');
+        row.className = "px-3 py-2 rounded-xl border border-stone-100 bg-[#F7F6F2]/60 opacity-55 flex items-center justify-between text-xs tabular-nums";
+        row.innerHTML = `
+          <span class="line-through text-[#78716C] truncate">${r.name}</span>
+          <span class="text-[11px] text-[#78716C] bg-[#EFECE6] px-2 py-0.5 rounded-md shrink-0">${reason}</span>
+        `;
+        listEl.appendChild(row);
+      });
+
+      // Excluded reset bar
+      const excludedBar = document.getElementById('excludedBar');
+      if (state.excludedIds.size > 0) {
+        excludedBar.classList.remove('hidden');
+        document.getElementById('excludedCount').textContent = state.excludedIds.size;
+      } else {
+        excludedBar.classList.add('hidden');
+      }
+
+      // Ensure Hero Card stays synced
+      const currentSelected = activePool.find(x => x.id === state.selectedId) ||
+                              (updateSpotlightIfInvalid ? activePool[0] : filteredPool.find(x => x.id === state.selectedId));
+      if (currentSelected) {
+        renderHero(currentSelected);
+      }
+
+      renderRadar(activePool, filteredPool);
+    }
+
+    // =========================================================================
+    // 5. 抽籤互動與情境按鈕綁定
+    // =========================================================================
+    function pickWeighted(pool) {
+      const rand = Math.random() * 100;
+      let acc = 0;
+      for (const item of pool) {
+        acc += item.prob;
+        if (rand <= acc) return item;
+      }
+      return pool[pool.length - 1];
+    }
+
+    document.getElementById('drawBtn').addEventListener('click', () => {
+      if (state.isRolling) return;
+      const { activePool } = computePool();
+      if (activePool.length === 0) {
+        document.getElementById('resName').textContent = "無符合條件的餐廳";
+        document.getElementById('resOrder').textContent = "請點選右上角「偏好設定」調高預算，或切換其他餐點分類。";
+        return;
+      }
+
+      const winner = pickWeighted(activePool);
+      state.isRolling = true;
+      const btnText = document.getElementById('drawBtnText');
+      btnText.textContent = "選食計算中...";
+
+      let step = 0;
+      const maxSteps = 12;
+      const tick = () => {
+        step++;
+        const preview = activePool[Math.floor(Math.random() * activePool.length)];
+        document.getElementById('resName').textContent = preview.name;
+        document.getElementById('resArea').textContent = `${preview.area} · 直線 ${preview.straightM}m`;
+        document.getElementById('resProb').textContent = `${preview.prob.toFixed(1)}%`;
+
+        if (step < maxSteps) {
+          setTimeout(tick, 40 + step * 12);
+        } else {
+          state.isRolling = false;
+          btnText.textContent = "再抽一次";
+          renderHero(winner);
+          renderAll(false);
+        }
+      };
+      tick();
+    });
+
+    // Exclude & Redraw
+    document.getElementById('excludeBtn').addEventListener('click', () => {
+      if (!state.selectedId || state.isRolling) return;
+      state.excludedIds.add(state.selectedId);
+      renderAll(true);
+      document.getElementById('drawBtn').click();
+    });
+
+    document.getElementById('resetExcludeBtn').addEventListener('click', () => {
+      state.excludedIds.clear();
+      renderAll(true);
+    });
+
+    // Transport Mode Switch
+    const modeWalkBtn = document.getElementById('modeWalkBtn');
+    const modeBikeBtn = document.getElementById('modeBikeBtn');
+    modeWalkBtn.addEventListener('click', () => {
+      state.transport = 'walk';
+      modeWalkBtn.className = "px-3 py-1.5 rounded-lg bg-white text-[#1C1917] border border-stone-200/70 transition";
+      modeBikeBtn.className = "px-3 py-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] transition";
+      renderAll(false);
+    });
+    modeBikeBtn.addEventListener('click', () => {
+      state.transport = 'bike';
+      modeBikeBtn.className = "px-3 py-1.5 rounded-lg bg-white text-[#1C1917] border border-stone-200/70 transition";
+      modeWalkBtn.className = "px-3 py-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] transition";
+      renderAll(false);
+    });
+
+    // 1-Click Mood Presets
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => {
+          b.className = "mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#F7F6F2] text-[#78716C] hover:text-[#1C1917] border border-stone-200/80 transition";
+        });
+        btn.className = "mood-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-[#3F6212] text-white transition";
+
+        const mood = btn.getAttribute('data-mood');
+        state.mood = mood;
+        const bInput = document.getElementById('budgetInput');
+        const wh = document.getElementById('wHealth');
+        const wd = document.getElementById('wDist');
+        const wp = document.getElementById('wPrice');
+
+        if (mood === 'balanced') {
+          bInput.value = 200; wh.value = 8; wd.value = 8; wp.value = 6;
+        } else if (mood === 'strict') {
+          bInput.value = 220; wh.value = 10; wd.value = 5; wp.value = 4;
+        } else if (mood === 'near') {
+          bInput.value = 200; wh.value = 6; wd.value = 10; wp.value = 5;
+        } else if (mood === 'budget') {
+          bInput.value = 135; wh.value = 7; wd.value = 7; wp.value = 10;
+        }
+        renderAll(true);
+      });
+    });
+
+    // Category Pills
+    document.querySelectorAll('.cat-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-pill').forEach(b => {
+          b.className = "cat-pill px-2.5 py-1 rounded-lg text-xs font-medium text-[#78716C] hover:bg-[#F7F6F2] shrink-0 transition";
+        });
+        btn.className = "cat-pill px-2.5 py-1 rounded-lg text-xs font-medium bg-[#1C1917] text-white shrink-0 transition";
+        state.category = btn.getAttribute('data-cat');
+        renderAll(true);
+      });
+    });
+
+    // =========================================================================
+    // 6. 抽屜選單控制與字體/座標設定
+    // =========================================================================
+    const settingsModal = document.getElementById('settingsModal');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const drawerPanel = document.getElementById('drawerPanel');
+
+    function openDrawer() {
+      settingsModal.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        drawerBackdrop.classList.remove('opacity-0');
+        drawerPanel.classList.remove('translate-x-full');
+      });
+    }
+
+    function closeDrawer() {
+      drawerBackdrop.classList.add('opacity-0');
+      drawerPanel.classList.add('translate-x-full');
+      setTimeout(() => settingsModal.classList.add('hidden'), 280);
+    }
+
+    document.getElementById('openSettingsBtn').addEventListener('click', openDrawer);
+    document.getElementById('closeSettingsBtn').addEventListener('click', closeDrawer);
+    document.getElementById('applySettingsBtn').addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+
+    // Typography Switcher
+    document.querySelectorAll('.font-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fontClass = btn.getAttribute('data-font');
+        document.body.classList.remove('theme-editorial', 'theme-modern', 'theme-literary');
+        document.body.classList.add(fontClass);
+
+        document.querySelectorAll('.font-btn').forEach(b => {
+          b.className = "font-btn p-2.5 rounded-xl border border-stone-200/80 bg-[#F7F6F2] text-left transition";
+        });
+        btn.className = "font-btn p-2.5 rounded-xl border border-[#3F6212] bg-[#3F6212]/5 text-left transition";
+      });
+    });
+
+    // Coordinate Preset & GPS
+    const coordPreset = document.getElementById('coordPreset');
+    const customCoordInputs = document.getElementById('customCoordInputs');
+    const latInput = document.getElementById('latInput');
+    const lngInput = document.getElementById('lngInput');
+
+    coordPreset.addEventListener('change', (e) => {
+      if (e.target.value === 'custom') {
+        customCoordInputs.classList.remove('hidden');
+      } else {
+        customCoordInputs.classList.add('hidden');
+        const [lat, lng] = e.target.value.split(',').map(Number);
+        state.originLat = lat;
+        state.originLng = lng;
+        latInput.value = lat;
+        lngInput.value = lng;
+        document.getElementById('originLabelText').textContent =
+          `中心點：${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        renderAll(false);
+      }
+    });
+
+    [latInput, lngInput].forEach(inp => {
+      inp.addEventListener('input', () => {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          state.originLat = lat;
+          state.originLng = lng;
+          document.getElementById('originLabelText').textContent =
+            `中心點：${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          renderAll(false);
+        }
+      });
+    });
+
+    document.getElementById('gpsBtn').addEventListener('click', () => {
+      const statusEl = document.getElementById('gpsStatusText');
+      statusEl.classList.remove('hidden');
+      if (!navigator.geolocation) {
+        statusEl.textContent = "瀏覽器不支援定位功能";
+        return;
+      }
+      statusEl.textContent = "正在取得座標...";
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          state.originLat = pos.coords.latitude;
+          state.originLng = pos.coords.longitude;
+          coordPreset.value = 'custom';
+          customCoordInputs.classList.remove('hidden');
+          latInput.value = state.originLat.toFixed(6);
+          lngInput.value = state.originLng.toFixed(6);
+          statusEl.textContent = `已更新為目前位置 (${state.originLat.toFixed(5)}, ${state.originLng.toFixed(5)})`;
+          document.getElementById('originLabelText').textContent =
+            `中心點：${state.originLat.toFixed(6)}, ${state.originLng.toFixed(6)}`;
+          renderAll(false);
+        },
+        () => {
+          statusEl.textContent = "無法取得定位權限，已維持預設座標";
+        }
+      );
+    });
+
+    // Sliders & Checkboxes
+    ['budgetInput', 'wHealth', 'wDist', 'wPrice', 'daySelect'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        if (['wHealth', 'wDist', 'wPrice', 'budgetInput'].includes(id)) {
+          state.mood = 'custom';
+        }
+        renderAll(false);
+      });
+    });
+
+    document.getElementById('strictHourCheck').addEventListener('change', (e) => {
+      state.strictHours = e.target.checked;
+      renderAll(true);
+    });
+
+    // Initial render
+    renderAll(true);
+  </script>
+</body>
+</html>
